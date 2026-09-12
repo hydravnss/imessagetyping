@@ -2,65 +2,66 @@
 
 .imessage-typing-indicator {
     position: sticky;
-    bottom: 28px;
-    margin: 4px 14px 14px;
+    bottom: 8px;                 /* très bas, proche de la barre de frappe */
+    margin: 0 12px 6px 12px;
     order: 9999;
     z-index: 50;
     display: flex;
     justify-content: flex-start;
     pointer-events: none;
-    animation: fadeInBubble 0.25s ease-out;
+    animation: fadeInBubble 0.2s ease-out;
 }
 
 @keyframes fadeInBubble {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
 .imessage-bubble {
     background-color: #E5E5EA;
     border-radius: 18px;
-    padding: 11px 15px;
+    padding: 10px 14px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     position: relative;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
-/* Queue propre */
+/* Queue propre (sans aucune ligne) */
 .imessage-bubble::before {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: -1px;
-    left: -7px;
-    width: 16px;
-    height: 16px;
+    bottom: 0;
+    left: -6px;
+    width: 12px;
+    height: 12px;
     background: #E5E5EA;
-    border-bottom-right-radius: 14px;
+    border-radius: 0 0 0 10px;
+    transform: skew(-15deg);
 }
 
 /* Points */
 .imessage-dot {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     background-color: #8E8E93;
     border-radius: 50%;
-    opacity: 0.35;
-    animation: imessage-bounce 1.35s infinite ease-in-out both;
+    opacity: 0.4;
+    animation: imessage-bounce 1.3s infinite ease-in-out both;
 }
 
 .imessage-dot:nth-child(1) { animation-delay: 0s; }
-.imessage-dot:nth-child(2) { animation-delay: 0.18s; }
-.imessage-dot:nth-child(3) { animation-delay: 0.36s; }
+.imessage-dot:nth-child(2) { animation-delay: 0.16s; }
+.imessage-dot:nth-child(3) { animation-delay: 0.32s; }
 
 @keyframes imessage-bounce {
     0%, 60%, 100% {
-        transform: translateY(0) scale(0.92);
+        transform: translateY(0) scale(0.9);
         opacity: 0.35;
     }
     30% {
-        transform: translateY(-5px) scale(1.18);
+        transform: translateY(-4px) scale(1.15);
         opacity: 1;
     }
 }
@@ -82,7 +83,7 @@ body[data-theme*="dark"] .imessage-dot {
     background-color: #AEAEB2;
 }
 
-/* Cache uniquement l’indicateur natif (safe) */
+/* Cache l'indicateur natif */
 #typing_indicator,
 .typing_indicator {
     display: none !important;
