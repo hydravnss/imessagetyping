@@ -1,8 +1,7 @@
-/* iMessage Typing - Position exacte */
+/* iMessage Typing */
 
 .imessage-typing-indicator {
-    position: fixed;                 /* ← important */
-    bottom: 70px;                    /* ajuste si besoin (plus bas = plus proche de la barre) */
+    position: fixed;
     left: 16px;
     z-index: 9999;
     display: flex;
