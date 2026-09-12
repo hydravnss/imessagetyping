@@ -1,0 +1,12 @@
+{
+    "display_name": "iMessage Typing",
+    "loading_order": 800,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "hydravnss",
+    "version": "1.0.0",
+    "homePage": "https://github.com/hydravnss/imessagetyping",
+    "auto_update": true
+}
