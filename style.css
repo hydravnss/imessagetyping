@@ -1,100 +1,99 @@
-/* iMessage Typing Indicator - hydravnss/imessagetyping */
+/* iMessage Typing - hydravnss/imessagetyping */
 
 .imessage-typing-indicator {
     position: sticky;
-    bottom: 12px;
-    margin: 8px 12px;
+    bottom: 16px;
+    margin: 6px 14px 10px;
     order: 9999;
-    z-index: 10;
+    z-index: 50;
     display: flex;
     justify-content: flex-start;
     pointer-events: none;
+    animation: fadeInBubble 0.25s ease-out;
+}
+
+@keyframes fadeInBubble {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .imessage-bubble {
     background-color: #E5E5EA;
     border-radius: 18px;
-    padding: 10px 14px;
+    padding: 11px 15px;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     position: relative;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
-    animation: imessage-bulge 1.6s ease-in-out infinite;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-/* Tail */
+/* Queue iMessage réaliste (comme sur ton image) */
 .imessage-bubble::before {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -1px;
     left: -6px;
-    width: 16px;
-    height: 16px;
-    background-color: #E5E5EA;
-    border-bottom-right-radius: 14px;
+    width: 20px;
+    height: 20px;
+    background: #E5E5EA;
+    border-bottom-right-radius: 16px;
 }
 
 .imessage-bubble::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: -8px;
+    bottom: -2px;
+    left: -11px;
     width: 12px;
-    height: 16px;
-    background-color: var(--SmartThemeBlurTintColor, #1e1e1e);
-    border-bottom-right-radius: 10px;
+    height: 20px;
+    background: var(--SmartThemeBlurTintColor, #111);
+    border-bottom-right-radius: 12px;
 }
 
-/* Dots */
+/* Points */
 .imessage-dot {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     background-color: #8E8E93;
     border-radius: 50%;
-    opacity: 0.4;
-    animation: imessage-bounce 1.4s infinite ease-in-out;
+    opacity: 0.35;
+    animation: imessage-bounce 1.35s infinite ease-in-out both;
 }
 
 .imessage-dot:nth-child(1) { animation-delay: 0s; }
-.imessage-dot:nth-child(2) { animation-delay: 0.2s; }
-.imessage-dot:nth-child(3) { animation-delay: 0.4s; }
+.imessage-dot:nth-child(2) { animation-delay: 0.18s; }
+.imessage-dot:nth-child(3) { animation-delay: 0.36s; }
 
-/* Bounce */
 @keyframes imessage-bounce {
     0%, 60%, 100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.4;
+        transform: translateY(0) scale(0.92);
+        opacity: 0.35;
     }
     30% {
-        transform: translateY(-4px) scale(1.15);
+        transform: translateY(-5px) scale(1.18);
         opacity: 1;
     }
 }
 
-/* Breathing */
-@keyframes imessage-bulge {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
-}
-
 /* Dark mode */
 body.dark-theme .imessage-bubble,
-html[data-theme*="dark"] .imessage-bubble {
+html[data-theme*="dark"] .imessage-bubble,
+body[data-theme*="dark"] .imessage-bubble {
     background-color: #3A3A3C;
 }
-
 body.dark-theme .imessage-bubble::before,
-html[data-theme*="dark"] .imessage-bubble::before {
+html[data-theme*="dark"] .imessage-bubble::before,
+body[data-theme*="dark"] .imessage-bubble::before {
     background-color: #3A3A3C;
 }
-
 body.dark-theme .imessage-dot,
-html[data-theme*="dark"] .imessage-dot {
+html[data-theme*="dark"] .imessage-dot,
+body[data-theme*="dark"] .imessage-dot {
     background-color: #AEAEB2;
 }
 
-/* Hide default ST indicator */
+/* Cache l’ancien indicateur */
 #typing_indicator {
     display: none !important;
 }
