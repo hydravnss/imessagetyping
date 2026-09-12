@@ -2,8 +2,8 @@
 
 .imessage-typing-indicator {
     position: sticky;
-    bottom: 16px;
-    margin: 6px 14px 10px;
+    bottom: 28px;               /* ← descendu plus bas */
+    margin: 4px 14px 14px;
     order: 9999;
     z-index: 50;
     display: flex;
@@ -28,18 +28,17 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-/* Queue propre (sans ligne bizarre) */
+/* Queue propre sans ligne bizarre */
 .imessage-bubble::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: -5px;
-    width: 14px;
-    height: 14px;
+    bottom: -1px;
+    left: -7px;
+    width: 16px;
+    height: 16px;
     background: #E5E5EA;
-    border-radius: 0 0 0 12px;
-    transform: rotate(45deg);
-    transform-origin: bottom left;
+    border-bottom-right-radius: 14px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 30% 100%);
 }
 
 /* Points */
@@ -84,7 +83,7 @@ body[data-theme*="dark"] .imessage-dot {
     background-color: #AEAEB2;
 }
 
-/* ========== CACHE TOUT L’INDICATEUR NATIF ========== */
+/* Cache l’indicateur natif */
 #typing_indicator,
 .typing_indicator,
 [id*="typing_indicator"],
@@ -92,3 +91,11 @@ body[data-theme*="dark"] .imessage-dot {
 .last_mes .typing,
 .mes[is_typing],
 .mes .typing_indicator,
+div[class*="typing"]:not(.imessage-typing-indicator):not(.imessage-bubble):not(.imessage-dot) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
