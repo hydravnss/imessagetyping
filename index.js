@@ -1,94 +1,160 @@
-/* iMessage Typing - hydravnss/imessagetyping */
+(async function () {
+    // Attend que SillyTavern soit prêt
+    const waitForContext = () => new Promise(resolve => {
+        if (window.SillyTavern?.getContext) return resolve(SillyTavern.getContext());
+        const interval = setInterval(() => {
+            if (window.SillyTavern?.getContext) {
+                clearInterval(interval);
+                resolve(SillyTavern.getContext());
+            }
+        }, 100);
+    });
 
-.imessage-typing-indicator {
-    position: sticky;
-    bottom: 16px;
-    margin: 6px 14px 10px;
-    order: 9999;
-    z-index: 50;
-    display: flex;
-    justify-content: flex-start;
-    pointer-events: none;
-    animation: fadeInBubble 0.25s ease-out;
-}
+    const context = await waitForContext();
+    const { eventSource, event_types, extensionSettings, saveSettingsDebounced, isStreamingEnabled } = context;
 
-@keyframes fadeInBubble {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+    const MODULE = 'imessagetyping';
 
-.imessage-bubble {
-    background-color: #E5E5EA;
-    border-radius: 18px;
-    padding: 11px 15px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-}
+    const defaultSettings = {
+        enabled: true,
+        streaming: true,
+    };
 
-/* Queue propre (sans ligne bizarre) */
-.imessage-bubble::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: -5px;
-    width: 14px;
-    height: 14px;
-    background: #E5E5EA;
-    border-radius: 0 0 0 12px;
-    transform: rotate(45deg);
-    transform-origin: bottom left;
-}
-
-/* Points */
-.imessage-dot {
-    width: 9px;
-    height: 9px;
-    background-color: #8E8E93;
-    border-radius: 50%;
-    opacity: 0.35;
-    animation: imessage-bounce 1.35s infinite ease-in-out both;
-}
-
-.imessage-dot:nth-child(1) { animation-delay: 0s; }
-.imessage-dot:nth-child(2) { animation-delay: 0.18s; }
-.imessage-dot:nth-child(3) { animation-delay: 0.36s; }
-
-@keyframes imessage-bounce {
-    0%, 60%, 100% {
-        transform: translateY(0) scale(0.92);
-        opacity: 0.35;
+    function getSettings() {
+        if (!extensionSettings[MODULE]) {
+            extensionSettings[MODULE] = structuredClone(defaultSettings);
+        }
+        for (const key in defaultSettings) {
+            if (extensionSettings[MODULE][key] === undefined) {
+                extensionSettings[MODULE][key] = defaultSettings[key];
+            }
+        }
+        return extensionSettings[MODULE];
     }
-    30% {
-        transform: translateY(-5px) scale(1.18);
-        opacity: 1;
+
+    function addExtensionSettings(settings) {
+        const settingsContainer = document.getElementById('extensions_settings2')
+            || document.getElementById('extensions_settings');
+        if (!settingsContainer) return;
+
+        // Évite les doublons
+        if (document.getElementById('imessage_typing_settings')) return;
+
+        const inlineDrawer = document.createElement('div');
+        inlineDrawer.id = 'imessage_typing_settings';
+        inlineDrawer.classList.add('inline-drawer');
+        settingsContainer.append(inlineDrawer);
+
+        const inlineDrawerToggle = document.createElement('div');
+        inlineDrawerToggle.classList.add('inline-drawer-toggle', 'inline-drawer-header');
+
+        const extensionName = document.createElement('b');
+        extensionName.textContent = 'iMessage Typing';
+
+        const inlineDrawerIcon = document.createElement('div');
+        inlineDrawerIcon.classList.add('inline-drawer-icon', 'fa-solid', 'fa-circle-chevron-down', 'down');
+
+        inlineDrawerToggle.append(extensionName, inlineDrawerIcon);
+
+        const inlineDrawerContent = document.createElement('div');
+        inlineDrawerContent.classList.add('inline-drawer-content');
+
+        inlineDrawer.append(inlineDrawerToggle, inlineDrawerContent);
+
+        // Enabled
+        const enabledLabel = document.createElement('label');
+        enabledLabel.classList.add('checkbox_label');
+        const enabledCheckbox = document.createElement('input');
+        enabledCheckbox.type = 'checkbox';
+        enabledCheckbox.checked = settings.enabled;
+        enabledCheckbox.addEventListener('change', () => {
+            settings.enabled = enabledCheckbox.checked;
+            saveSettingsDebounced();
+        });
+        const enabledText = document.createElement('span');
+        enabledText.textContent = 'Enabled';
+        enabledLabel.append(enabledCheckbox, enabledText);
+        inlineDrawerContent.append(enabledLabel);
+
+        // Streaming
+        const streamingLabel = document.createElement('label');
+        streamingLabel.classList.add('checkbox_label');
+        const streamingCheckbox = document.createElement('input');
+        streamingCheckbox.type = 'checkbox';
+        streamingCheckbox.checked = settings.streaming;
+        streamingCheckbox.addEventListener('change', () => {
+            settings.streaming = streamingCheckbox.checked;
+            saveSettingsDebounced();
+        });
+        const streamingText = document.createElement('span');
+        streamingText.textContent = 'Show while streaming';
+        streamingLabel.append(streamingCheckbox, streamingText);
+        inlineDrawerContent.append(streamingLabel);
     }
-}
 
-/* Dark mode */
-body.dark-theme .imessage-bubble,
-html[data-theme*="dark"] .imessage-bubble,
-body[data-theme*="dark"] .imessage-bubble {
-    background-color: #3A3A3C;
-}
-body.dark-theme .imessage-bubble::before,
-html[data-theme*="dark"] .imessage-bubble::before,
-body[data-theme*="dark"] .imessage-bubble::before {
-    background-color: #3A3A3C;
-}
-body.dark-theme .imessage-dot,
-html[data-theme*="dark"] .imessage-dot,
-body[data-theme*="dark"] .imessage-dot {
-    background-color: #AEAEB2;
-}
+    function createBubble() {
+        const wrapper = document.createElement('div');
+        wrapper.id = 'imessage_typing_indicator';
+        wrapper.className = 'imessage-typing-indicator';
 
-/* ========== CACHE TOUT L’INDICATEUR NATIF ========== */
-#typing_indicator,
-.typing_indicator,
-[id*="typing_indicator"],
-.mes_block .typing,
-.last_mes .typing,
-.mes[is_typing],
-.mes .typing_indicator,
+        const bubble = document.createElement('div');
+        bubble.className = 'imessage-bubble';
+
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'imessage-dot';
+            bubble.appendChild(dot);
+        }
+
+        wrapper.appendChild(bubble);
+        return wrapper;
+    }
+
+    function hideNativeIndicators() {
+        document.querySelectorAll('#typing_indicator, .typing_indicator, [class*="typing"]').forEach(el => {
+            if (!el.classList.contains('imessage-typing-indicator') && !el.closest('.imessage-typing-indicator')) {
+                el.style.display = 'none';
+                el.remove();
+            }
+        });
+    }
+
+    function showTypingIndicator(type, _args, dryRun) {
+        const settings = getSettings();
+        if (dryRun || ['quiet', 'impersonate'].includes(type)) return;
+        if (!settings.enabled) return;
+        if (!settings.streaming && isStreamingEnabled?.()) return;
+
+        hideNativeIndicators();
+
+        if (document.getElementById('imessage_typing_indicator')) return;
+
+        const indicator = createBubble();
+        const chat = document.getElementById('chat');
+        if (chat) {
+            chat.appendChild(indicator);
+            const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 30;
+            if (wasScrolledDown) {
+                setTimeout(() => chat.scrollTop = chat.scrollHeight, 40);
+            }
+        }
+    }
+
+    function hideTypingIndicator() {
+        document.getElementById('imessage_typing_indicator')?.remove();
+        hideNativeIndicators();
+    }
+
+    // Init
+    const settings = getSettings();
+    addExtensionSettings(settings);
+
+    eventSource.on(event_types.GENERATION_AFTER_COMMANDS, showTypingIndicator);
+    eventSource.on(event_types.GENERATION_STARTED, showTypingIndicator);
+    eventSource.on(event_types.GENERATION_STOPPED, hideTypingIndicator);
+    eventSource.on(event_types.GENERATION_ENDED, hideTypingIndicator);
+    eventSource.on(event_types.CHAT_CHANGED, hideTypingIndicator);
+    eventSource.on(event_types.MESSAGE_RECEIVED, hideTypingIndicator);
+
+    console.log('%c[iMessage Typing] loaded successfully', 'color: #34C759; font-weight: bold');
+})();
