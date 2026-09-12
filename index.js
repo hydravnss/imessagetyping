@@ -6,13 +6,12 @@ import {
     saveSettingsDebounced,
 } from '../../../../script.js';
 import { extension_settings } from '../../../extensions.js';
-import { selected_group } from '../../../group-chats.js';
 
 const MODULE = 'imessagetyping';
 
 const defaultSettings = {
     enabled: true,
-    streaming: false,
+    streaming: true,   // activé par défaut pour que tu le voies tout de suite
 };
 
 function getSettings() {
@@ -106,32 +105,32 @@ function showTypingIndicator(type, _args, dryRun) {
     const noIndicatorTypes = ['quiet', 'impersonate'];
 
     if (noIndicatorTypes.includes(type) || dryRun) return;
-    if (!settings.enabled || !name2) return;
+    if (!settings.enabled) return;
     if (!settings.streaming && isStreamingEnabled()) return;
 
+    // Force show even if name2 is empty (for testing)
     let indicator = document.getElementById('imessage_typing_indicator');
     if (indicator) return;
 
     indicator = createBubble();
-    $(indicator).hide();
-
     const chat = document.getElementById('chat');
     if (chat) {
         chat.appendChild(indicator);
-        const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 5;
 
-        $(indicator).fadeIn(150, () => {
-            if (wasScrolledDown) {
+        // Scroll to bottom if already at bottom
+        const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 20;
+        if (wasScrolledDown) {
+            setTimeout(() => {
                 chat.scrollTop = chat.scrollHeight;
-            }
-        });
+            }, 50);
+        }
     }
 }
 
 function hideTypingIndicator() {
     const indicator = document.getElementById('imessage_typing_indicator');
     if (indicator) {
-        $(indicator).fadeOut(120, () => indicator.remove());
+        indicator.remove();
     }
 }
 
@@ -139,13 +138,14 @@ function hideTypingIndicator() {
     const settings = getSettings();
     addExtensionSettings(settings);
 
-    const showEvents = [event_types.GENERATION_AFTER_COMMANDS];
-    const hideEvents = [
-        event_types.GENERATION_STOPPED,
-        event_types.GENERATION_ENDED,
-        event_types.CHAT_CHANGED,
-    ];
+    // Events
+    eventSource.on(event_types.GENERATION_AFTER_COMMANDS, showTypingIndicator);
+    eventSource.on(event_types.GENERATION_STARTED, showTypingIndicator); // extra safety
 
-    showEvents.forEach(e => eventSource.on(e, showTypingIndicator));
-    hideEvents.forEach(e => eventSource.on(e, hideTypingIndicator));
+    eventSource.on(event_types.GENERATION_STOPPED, hideTypingIndicator);
+    eventSource.on(event_types.GENERATION_ENDED, hideTypingIndicator);
+    eventSource.on(event_types.CHAT_CHANGED, hideTypingIndicator);
+    eventSource.on(event_types.MESSAGE_RECEIVED, hideTypingIndicator);
+
+    console.log('[iMessage Typing] Extension loaded');
 })();
