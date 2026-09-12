@@ -17,7 +17,7 @@
     const defaultSettings = {
         enabled: true,
         streaming: true,
-        bottom: 90, // valeur par défaut (px depuis le bas)
+        bottom: 90,
     };
 
     function getSettings() {
@@ -89,12 +89,12 @@
         streamingLabel.append(streamingCheckbox, streamingText);
         inlineDrawerContent.append(streamingLabel);
 
-        // Position (bottom)
+        // Position
         const positionLabel = document.createElement('label');
         positionLabel.style.display = 'block';
         positionLabel.style.marginTop = '12px';
         positionLabel.innerHTML = `<span>Position (depuis le bas) : <b id="imessage_bottom_value">${settings.bottom}px</b></span>`;
-        
+
         const positionSlider = document.createElement('input');
         positionSlider.type = 'range';
         positionSlider.min = '40';
@@ -107,12 +107,9 @@
         positionSlider.addEventListener('input', () => {
             settings.bottom = parseInt(positionSlider.value);
             document.getElementById('imessage_bottom_value').textContent = settings.bottom + 'px';
-            
-            // Applique en live si la bulle est visible
-            const bubble = document.getElementById('imessage_typing_indicator');
-            if (bubble) {
-                bubble.style.bottom = settings.bottom + 'px';
-            }
+
+            const el = document.getElementById('imessage_typing_indicator');
+            if (el) el.style.bottom = settings.bottom + 'px';
             saveSettingsDebounced();
         });
 
@@ -127,37 +124,12 @@
         wrapper.className = 'imessage-typing-indicator';
         wrapper.style.bottom = settings.bottom + 'px';
 
-        const bubble = document.createElement('div');
-        bubble.className = 'imessage-bubble';
-
-        bubble.innerHTML = `
-            <svg viewBox="0 0 70 40" preserveAspectRatio="none">
-                <path class="bubble-bg" d="
-                    M 18,2
-                    H 58
-                    Q 68,2 68,12
-                    V 28
-                    Q 68,38 58,38
-                    H 18
-                    Q 8,38 8,28
-                    V 18
-                    Q 8,8 18,8
-                    Z
-                    M 8,28
-                    Q 2,32 0,38
-                    Q 4,36 8,32
-                    Z
-                "/>
-            </svg>
-        `;
-
         for (let i = 0; i < 3; i++) {
             const dot = document.createElement('div');
             dot.className = 'imessage-dot';
-            bubble.appendChild(dot);
+            wrapper.appendChild(dot);
         }
 
-        wrapper.appendChild(bubble);
         return wrapper;
     }
 
@@ -188,5 +160,5 @@
     eventSource.on(event_types.CHAT_CHANGED, hideTypingIndicator);
     eventSource.on(event_types.MESSAGE_RECEIVED, hideTypingIndicator);
 
-    console.log('%c[iMessage Typing] loaded with settings panel', 'color: #34C759; font-weight: bold');
+    console.log('%c[iMessage Typing] loaded (dots only)', 'color: #34C759; font-weight: bold');
 })();
