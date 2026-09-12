@@ -1,4 +1,4 @@
-/* iMessage Typing - Version propre et fidèle */
+/* iMessage Typing - Version fidèle à l'original */
 
 .imessage-typing-indicator {
     position: sticky;
@@ -17,46 +17,49 @@
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Bulle principale */
+/* Conteneur de la bulle */
 .imessage-bubble {
     position: relative;
-    background: #E5E5EA;
-    border-radius: 18px;
-    padding: 11px 15px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    justify-content: center;
+    padding: 11px 16px;
+    background: #E5E5EA;
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
-/* Queue classique iMessage (propre) */
+/* Queue iMessage (forme correcte) */
 .imessage-bubble::before {
     content: "";
     position: absolute;
-    bottom: 0;
-    left: -5px;
-    width: 14px;
-    height: 14px;
+    bottom: 2px;
+    left: -8px;
+    width: 16px;
+    height: 16px;
     background: #E5E5EA;
-    border-bottom-right-radius: 12px;
+    border-radius: 0 0 0 14px;
+    transform: rotate(15deg);
+    transform-origin: bottom right;
 }
 
 /* Petit cercle de la queue */
 .imessage-bubble::after {
     content: "";
     position: absolute;
-    bottom: -5px;
-    left: -9px;
+    bottom: -4px;
+    left: -11px;
     width: 9px;
     height: 9px;
     background: #E5E5EA;
     border-radius: 50%;
 }
 
-/* Les 3 points */
+/* Points */
 .imessage-dot {
     width: 8px;
     height: 8px;
+    margin: 0 2.5px;
     background: #8E8E93;
     border-radius: 50%;
     opacity: 0.4;
@@ -73,12 +76,12 @@
         opacity: 0.4;
     }
     30% {
-        transform: translateY(-4px) scale(1.18);
+        transform: translateY(-4px) scale(1.2);
         opacity: 1;
     }
 }
 
-/* ====== Dark mode ====== */
+/* Dark mode */
 body.dark-theme .imessage-bubble,
 html[data-theme*="dark"] .imessage-bubble,
 body[data-theme*="dark"] .imessage-bubble {
