@@ -17,6 +17,7 @@
     const defaultSettings = {
         enabled: true,
         streaming: true,
+        bottom: 90, // valeur par défaut (px depuis le bas)
     };
 
     function getSettings() {
@@ -66,6 +67,7 @@
         enabledCheckbox.addEventListener('change', () => {
             settings.enabled = enabledCheckbox.checked;
             saveSettingsDebounced();
+            if (!settings.enabled) hideTypingIndicator();
         });
         const enabledText = document.createElement('span');
         enabledText.textContent = 'Enabled';
@@ -86,15 +88,68 @@
         streamingText.textContent = 'Show while streaming';
         streamingLabel.append(streamingCheckbox, streamingText);
         inlineDrawerContent.append(streamingLabel);
+
+        // Position (bottom)
+        const positionLabel = document.createElement('label');
+        positionLabel.style.display = 'block';
+        positionLabel.style.marginTop = '12px';
+        positionLabel.innerHTML = `<span>Position (depuis le bas) : <b id="imessage_bottom_value">${settings.bottom}px</b></span>`;
+        
+        const positionSlider = document.createElement('input');
+        positionSlider.type = 'range';
+        positionSlider.min = '40';
+        positionSlider.max = '180';
+        positionSlider.step = '2';
+        positionSlider.value = settings.bottom;
+        positionSlider.style.width = '100%';
+        positionSlider.style.marginTop = '6px';
+
+        positionSlider.addEventListener('input', () => {
+            settings.bottom = parseInt(positionSlider.value);
+            document.getElementById('imessage_bottom_value').textContent = settings.bottom + 'px';
+            
+            // Applique en live si la bulle est visible
+            const bubble = document.getElementById('imessage_typing_indicator');
+            if (bubble) {
+                bubble.style.bottom = settings.bottom + 'px';
+            }
+            saveSettingsDebounced();
+        });
+
+        positionLabel.appendChild(positionSlider);
+        inlineDrawerContent.append(positionLabel);
     }
 
     function createBubble() {
+        const settings = getSettings();
         const wrapper = document.createElement('div');
         wrapper.id = 'imessage_typing_indicator';
         wrapper.className = 'imessage-typing-indicator';
+        wrapper.style.bottom = settings.bottom + 'px';
 
         const bubble = document.createElement('div');
         bubble.className = 'imessage-bubble';
+
+        bubble.innerHTML = `
+            <svg viewBox="0 0 70 40" preserveAspectRatio="none">
+                <path class="bubble-bg" d="
+                    M 18,2
+                    H 58
+                    Q 68,2 68,12
+                    V 28
+                    Q 68,38 58,38
+                    H 18
+                    Q 8,38 8,28
+                    V 18
+                    Q 8,8 18,8
+                    Z
+                    M 8,28
+                    Q 2,32 0,38
+                    Q 4,36 8,32
+                    Z
+                "/>
+            </svg>
+        `;
 
         for (let i = 0; i < 3; i++) {
             const dot = document.createElement('div');
@@ -115,23 +170,11 @@
         if (document.getElementById('imessage_typing_indicator')) return;
 
         const indicator = createBubble();
-        const chat = document.getElementById('chat');
-        if (chat) {
-            chat.appendChild(indicator);
-
-            // Force scroll en bas si on était déjà en bas
-            const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 40;
-            if (wasScrolledDown) {
-                setTimeout(() => {
-                    chat.scrollTop = chat.scrollHeight;
-                }, 30);
-            }
-        }
+        document.body.appendChild(indicator);
     }
 
     function hideTypingIndicator() {
-        const el = document.getElementById('imessage_typing_indicator');
-        if (el) el.remove();
+        document.getElementById('imessage_typing_indicator')?.remove();
     }
 
     // Init
@@ -145,5 +188,5 @@
     eventSource.on(event_types.CHAT_CHANGED, hideTypingIndicator);
     eventSource.on(event_types.MESSAGE_RECEIVED, hideTypingIndicator);
 
-    console.log('%c[iMessage Typing] loaded', 'color: #34C759; font-weight: bold');
+    console.log('%c[iMessage Typing] loaded with settings panel', 'color: #34C759; font-weight: bold');
 })();
