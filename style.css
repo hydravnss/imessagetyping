@@ -2,8 +2,8 @@
 
 .imessage-typing-indicator {
     position: sticky;
-    bottom: 14px;
-    margin: 0 0 10px 14px;
+    bottom: 6px;
+    margin: 0 0 6px 14px;
     order: 9999;
     z-index: 100;
     display: flex;
@@ -26,7 +26,7 @@
     padding: 0 14px 0 18px;
 }
 
-/* SVG de la bulle + queue (fidèle) */
+/* SVG de la bulle + queue */
 .imessage-bubble svg {
     position: absolute;
     left: 0;
