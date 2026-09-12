@@ -1,5 +1,4 @@
 (async function () {
-    // Attend que SillyTavern soit prêt
     const waitForContext = () => new Promise(resolve => {
         if (window.SillyTavern?.getContext) return resolve(SillyTavern.getContext());
         const interval = setInterval(() => {
@@ -7,7 +6,7 @@
                 clearInterval(interval);
                 resolve(SillyTavern.getContext());
             }
-        }, 100);
+        }, 80);
     });
 
     const context = await waitForContext();
@@ -36,8 +35,6 @@
         const settingsContainer = document.getElementById('extensions_settings2')
             || document.getElementById('extensions_settings');
         if (!settingsContainer) return;
-
-        // Évite les doublons
         if (document.getElementById('imessage_typing_settings')) return;
 
         const inlineDrawer = document.createElement('div');
@@ -58,7 +55,6 @@
 
         const inlineDrawerContent = document.createElement('div');
         inlineDrawerContent.classList.add('inline-drawer-content');
-
         inlineDrawer.append(inlineDrawerToggle, inlineDrawerContent);
 
         // Enabled
@@ -76,7 +72,7 @@
         enabledLabel.append(enabledCheckbox, enabledText);
         inlineDrawerContent.append(enabledLabel);
 
-        // Streaming
+        // Show while streaming
         const streamingLabel = document.createElement('label');
         streamingLabel.classList.add('checkbox_label');
         const streamingCheckbox = document.createElement('input');
@@ -110,22 +106,11 @@
         return wrapper;
     }
 
-    function hideNativeIndicators() {
-        document.querySelectorAll('#typing_indicator, .typing_indicator, [class*="typing"]').forEach(el => {
-            if (!el.classList.contains('imessage-typing-indicator') && !el.closest('.imessage-typing-indicator')) {
-                el.style.display = 'none';
-                el.remove();
-            }
-        });
-    }
-
     function showTypingIndicator(type, _args, dryRun) {
         const settings = getSettings();
         if (dryRun || ['quiet', 'impersonate'].includes(type)) return;
         if (!settings.enabled) return;
         if (!settings.streaming && isStreamingEnabled?.()) return;
-
-        hideNativeIndicators();
 
         if (document.getElementById('imessage_typing_indicator')) return;
 
@@ -133,16 +118,20 @@
         const chat = document.getElementById('chat');
         if (chat) {
             chat.appendChild(indicator);
-            const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 30;
+
+            // Force scroll en bas si on était déjà en bas
+            const wasScrolledDown = Math.ceil(chat.scrollTop + chat.clientHeight) >= chat.scrollHeight - 40;
             if (wasScrolledDown) {
-                setTimeout(() => chat.scrollTop = chat.scrollHeight, 40);
+                setTimeout(() => {
+                    chat.scrollTop = chat.scrollHeight;
+                }, 30);
             }
         }
     }
 
     function hideTypingIndicator() {
-        document.getElementById('imessage_typing_indicator')?.remove();
-        hideNativeIndicators();
+        const el = document.getElementById('imessage_typing_indicator');
+        if (el) el.remove();
     }
 
     // Init
@@ -156,5 +145,5 @@
     eventSource.on(event_types.CHAT_CHANGED, hideTypingIndicator);
     eventSource.on(event_types.MESSAGE_RECEIVED, hideTypingIndicator);
 
-    console.log('%c[iMessage Typing] loaded successfully', 'color: #34C759; font-weight: bold');
+    console.log('%c[iMessage Typing] loaded', 'color: #34C759; font-weight: bold');
 })();
