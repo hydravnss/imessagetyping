@@ -1,9 +1,11 @@
-/* iMessage Typing */
+/* iMessage Typing - Version SVG propre */
 
 .imessage-typing-indicator {
-    position: fixed;
-    left: 16px;
-    z-index: 9999;
+    position: sticky;
+    bottom: 6px;
+    margin: 0 0 6px 14px;
+    order: 9999;
+    z-index: 100;
     display: flex;
     justify-content: flex-start;
     pointer-events: none;
@@ -24,6 +26,7 @@
     padding: 0 14px 0 18px;
 }
 
+/* SVG de la bulle + queue */
 .imessage-bubble svg {
     position: absolute;
     left: 0;
@@ -37,6 +40,7 @@
     fill: #E5E5EA;
 }
 
+/* Points */
 .imessage-dot {
     position: relative;
     z-index: 2;
